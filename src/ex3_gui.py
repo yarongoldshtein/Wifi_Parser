@@ -70,10 +70,14 @@ class ex3_gui(ttk.Frame):
                                            command=self.display_by_receiver))
         self.button_list.append(ttk.Button(self, text='Display Graph',
                                               command=self.display_graph))
+        self.button_list.append(ttk.Button(self, text='Display Frames',
+                                           command=self.display_frames))
         self.button_list.append(ttk.Button(self, text='Display channel efficiency',
                                               command=self.display_channel_efficiency))
         self.button_list.append(ttk.Button(self, text='Display bytes per second',
                                               command=self.display_bytes_per_second))
+        self.button_list.append(ttk.Button(self, text='Display PER',
+                                              command=self.display_PER))
 
         self.answer_frame = ttk.LabelFrame(self, text='Status',
                                            height=100)
@@ -113,11 +117,17 @@ class ex3_gui(ttk.Frame):
     def display_graph(self):
         self.parser_object.display_graph()
 
+    def display_frames(self):
+        self.parser_object.display_frames()
+
     def display_channel_efficiency(self):
         self.parser_object.display_channel_efficiency()
 
     def display_bytes_per_second(self):
         self.parser_object.display_bytes_per_second()
+
+    def display_PER(self):
+        self.parser_object.display_PER()
 
     def ask_quit(self, event=None):
         if tkinter.messagebox:
