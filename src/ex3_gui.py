@@ -9,7 +9,8 @@ from tkinter import ttk
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import showerror
 import ex3
-
+import os
+from os.path import basename
 
 class ex3_gui(ttk.Frame):
     """The adders gui and functions."""
@@ -32,8 +33,8 @@ class ex3_gui(ttk.Frame):
             try:
                 self.is_used = True
                 self.parser_object = ex3.open_file(self.fname)
-                self.answer_label['text'] = "File loaded successfully!"
-
+                filename = os.path.splitext(self.fname)[0]
+                self.answer_label['text'] = "'"+basename(filename)+"'" + " loaded successfully!"
                 for i in range(len(self.button_list) - 1):
                     self.button_list[i + 1].configure(state='enable')
 
@@ -51,7 +52,7 @@ class ex3_gui(ttk.Frame):
     def init_gui(self):
         """Builds GUI."""
 
-        self.root.title('PCAP Parser')
+        self.root.title('PCAP WIFI Parser')
         self.root.option_add('*tearOff', 'FALSE')
         self.grid(column=0, row=0, sticky='nsew')
         self.button_list = []
@@ -62,17 +63,17 @@ class ex3_gui(ttk.Frame):
         self.button_list.append(self.b_browse)
         self.b_browse.grid(column=1, row=3, columnspan=columnspan, sticky=W + E + N + S)
 
-        self.button_list.append(ttk.Button(self, text='Display by SSIDs',
-                                          command=self.display_by_SSIDs))
-        self.button_list.append(ttk.Button(self, text='Display by sender',
-                                                     command=self.display_by_sender))
-        self.button_list.append(ttk.Button(self, text='Display by receiver',
-                                           command=self.display_by_receiver))
-        self.button_list.append(ttk.Button(self, text='Display Graph',
-                                              command=self.display_graph))
-        self.button_list.append(ttk.Button(self, text='Display Frames',
+        self.button_list.append(ttk.Button(self, text='Connection Map',
+                                          command=self.display_graph))
+        self.button_list.append(ttk.Button(self, text='Graph of amount by sender',
+                                           command=self.graph_by_sender))
+        self.button_list.append(ttk.Button(self, text='Graph of amount by receiver',
+                                           command=self.graph_by_receiver))
+        self.button_list.append(ttk.Button(self, text='Graph of Access Points',
+                                           command=self.display_by_AP))
+        self.button_list.append(ttk.Button(self, text='Distribution by Frame',
                                            command=self.display_frames))
-        self.button_list.append(ttk.Button(self, text='Display channel efficiency',
+        self.button_list.append(ttk.Button(self, text='channel efficiency',
                                               command=self.display_channel_efficiency))
         self.button_list.append(ttk.Button(self, text='Display bytes per second',
                                               command=self.display_bytes_per_second))
@@ -87,7 +88,7 @@ class ex3_gui(ttk.Frame):
         self.answer_label.grid(column=0, row=0)
 
         # Labels that remain constant throughout execution.
-        ttk.Label(self, text='PCAP Parser').grid(column=0, row=0,
+        ttk.Label(self, text='PCAP WIFI Parser').grid(column=0, row=0,
                                                  columnspan=columnspan)
 
         ttk.Separator(self, orient='horizontal').grid(column=0,
@@ -105,14 +106,14 @@ class ex3_gui(ttk.Frame):
         for child in self.winfo_children():
             child.grid_configure(padx=10, pady=10)
 
-    def display_by_SSIDs(self):
-        self.parser_object.display_by_SSIDs()
+    def display_by_AP(self):
+        self.parser_object.display_by_AP()
 
-    def display_by_receiver(self):
-        self.parser_object.display_by_receiver()
+    def graph_by_receiver(self):
+        self.parser_object.graph_by_receiver()
 
-    def display_by_sender(self):
-        self.parser_object.display_by_sender()
+    def graph_by_sender(self):
+        self.parser_object.graph_by_sender()
 
     def display_graph(self):
         self.parser_object.display_graph()

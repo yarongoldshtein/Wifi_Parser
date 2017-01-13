@@ -11,7 +11,8 @@ import networkx as nx
 import numpy as np
 from operator import itemgetter
 
-MY_COLORS = np.array(['r', 'g', 'b', 'gray', 'y', 'm', 'c'])
+
+MY_COLORS = np.array(['c', 'y', 'm', 'gray', 'b', 'r', 'g', 'k','gold'])
 BW_STANDARD_WIFI = 15E7
 
 
@@ -19,7 +20,7 @@ class parser:
     def __init__(self, path):
         self.pcap_file = rdpcap(path)
 
-    def display_by_receiver(self):
+    def graph_by_receiver(self):
 
         mac_addresses = {}  # new dictionary
         for pkt in self.pcap_file:
@@ -32,25 +33,25 @@ class parser:
             MA.append(mac_addresses[ma])
 
         plt.clf()
-        plt.suptitle('Number of packets by receivers', fontsize=14, fontweight='bold')
+        plt.suptitle('Number of packets of every receiver', fontsize=14, fontweight='bold')
         plt.bar(range(len(mac_addresses)), sorted(MA), align='center', color=MY_COLORS)
 
         plt.xticks(range(len(mac_addresses)), sorted(mac_addresses.keys()))
 
         plt.rcParams.update({'font.size': 10})
 
-        plt.xlabel('Receiver mac address')
-        plt.ylabel('Count')
+        plt.xlabel('Receivers mac addresses')
+        plt.ylabel('Number of packets')
 
         # Set tick colors:
         ax = plt.gca()
-        ax.tick_params(axis='x', colors='blue')
-        ax.tick_params(axis='y', colors='red')
+        ax.tick_params(axis='x', colors='k')
+        ax.tick_params(axis='y', colors='r')
         ax.set_xticklabels(ax.xaxis.get_majorticklabels(), rotation=45)
 
         plt.show()
 
-    def display_by_sender(self):
+    def graph_by_sender(self):
 
         mac_adresses = {}  # new dictionary
         for pkt in self.pcap_file:
@@ -63,25 +64,25 @@ class parser:
             MA.append(mac_adresses[ma])
 
         plt.clf()
-        plt.suptitle('Number of packets by senders', fontsize=14, fontweight='bold')
+        plt.suptitle('Number of packets of every sender', fontsize=14, fontweight='bold')
         plt.bar(range(len(mac_adresses)), sorted(MA), align='center', color=MY_COLORS)
 
         plt.xticks(range(len(mac_adresses)), sorted(mac_adresses.keys()))
 
         plt.rcParams.update({'font.size': 10})
 
-        plt.xlabel('Sender mac address')
-        plt.ylabel('Count')
+        plt.xlabel('Senders mac addresses')
+        plt.ylabel('Number of packets')
 
         # Set tick colors:
         ax = plt.gca()
-        ax.tick_params(axis='x', colors='blue')
-        ax.tick_params(axis='y', colors='red')
+        ax.tick_params(axis='x', colors='k')
+        ax.tick_params(axis='y', colors='r')
         ax.set_xticklabels(ax.xaxis.get_majorticklabels(), rotation=45)
 
         plt.show()
 
-    def display_by_SSIDs(self):
+    def display_by_AP(self):
 
         networks = {}
 
@@ -107,21 +108,21 @@ class parser:
         networks_list = sorted(networks.items(), key=itemgetter(1))
 
         plt.clf()
-        plt.suptitle('Number of packets by SSIDs', fontsize=14, fontweight='bold')
+        plt.suptitle('Number of packets in every Access point', fontsize=14, fontweight='bold')
         plt.bar(range(len(networks_list)), [int(i[1]) for i in networks_list], align='center', color=MY_COLORS)
 
         plt.xticks(range(len(networks_list)), [i[0] for i in networks_list])
 
         plt.rcParams.update({'font.size': 10})
 
-        plt.xlabel('SSID name')
-        plt.ylabel('Count')
+        plt.xlabel('Access point name')
+        plt.ylabel('Number of packets')
 
         # Set tick colors:
         ax = plt.gca()
-        ax.tick_params(axis='x', colors='blue')
-        ax.tick_params(axis='y', colors='red')
-        ax.set_xticklabels(ax.xaxis.get_majorticklabels(), rotation=30)
+        ax.tick_params(axis='x', colors='r')
+        ax.tick_params(axis='y', colors='k')
+        ax.set_xticklabels(ax.xaxis.get_majorticklabels(), rotation=60)
 
         plt.show()
 
@@ -135,20 +136,17 @@ class parser:
             frame_map[pkt.payload.payload.name] += 1
 
         frame_list = frame_map.items()
-
-        pies = [pie for (pie, percent) in sorted((frame_list), key=itemgetter(1))]
-        percents = [percent for (pie, percent) in sorted((frame_list), key=itemgetter(1))]
-        # percents = [str(adjust_text(percent, arrowprops=dict(arrowstyle="-", color='k', lw=0.5))) for (pie, percent) in sorted((frame_list), key=itemgetter(1))]
-
+        pies = [pie for (pie, percent) in list(frame_list)]
+        percents = [percent for (pie, percent) in list(frame_list)]
         # Make a pie graph.
-        colors = ['gold', 'lightgreen', 'r', 'orange', 'c', 'plum']
+        colors = ['lightgreen', 'pink', 'r', 'orange', 'c', 'brown','y','m']
         plt.clf()
         plt.figure(num=1, figsize=(12, 8))
         plt.axes(aspect=1)
-        plt.suptitle('Frames map', fontsize=14, fontweight='bold')
+        plt.suptitle('Frames PI', fontsize=14, fontweight='bold')
         plt.title("Number of packets: " + str(len(self.pcap_file)))
         plt.rcParams.update({'font.size': 10})
-        plt.pie(percents, labels=pies, autopct='%.1f%%', startangle=270, colors=colors, pctdistance=0.7,
+        plt.pie(percents, labels=pies, autopct='%.1f%%', startangle=90, colors=colors, pctdistance=0.7,
                 labeldistance=1.2)
 
         plt.show()
@@ -166,7 +164,7 @@ class parser:
                 edges_list.append((pkt.payload.src, pkt.payload.dst))
 
         plt.clf()
-        plt.suptitle('peer2peer communication', fontsize=14, fontweight='bold')
+        plt.suptitle('Connection Map', fontsize=14, fontweight='bold')
         plt.title("Number of users: " + str(count))
         plt.rcParams.update({'font.size': 10})
         G.add_edges_from(edges_list)
@@ -186,17 +184,18 @@ class parser:
             size += len(self.pcap_file[i])
         ans = (((size * 8) / duration) / BW_STANDARD_WIFI) * 100
         ans = float("%.2f" % ans)
-        labels = ['Used', 'Unused']
+        labels = ['utilized', 'unutilized']
         sizes = [ans, 100.0 - ans]
-        colors = ['g', 'firebrick']
+        colors = ['g', 'r']
 
         # Make a pie graph
         plt.clf()
         plt.figure(num=1, figsize=(8, 6))
         plt.axes(aspect=1)
         plt.suptitle('Channel efficiency', fontsize=14, fontweight='bold')
+        plt.title("Bits/s: " + str(float("%.2f" % ((size*8)/duration))),fontsize = 12)
         plt.rcParams.update({'font.size': 17})
-        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=-30, colors=colors, pctdistance=0.7,
+        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=60, colors=colors, pctdistance=0.7,
                 labeldistance=1.2)
 
         plt.show()
@@ -231,10 +230,10 @@ class parser:
 
         for pkt in self.pcap_file:
 
-            if (pkt[Dot11].FCfield & 0x4) != 0:
+            if (pkt[Dot11].FCfield & 0x8) != 0:
                 retransmission_pkts += 1
 
-        ans = retransmission_pkts / number_of_pkts
+        ans = (retransmission_pkts / number_of_pkts)*100
         ans = float("%.2f" % ans)
         labels = ['Standard packet', 'Retransmitted packet']
         sizes = [100.0 - ans,ans]
