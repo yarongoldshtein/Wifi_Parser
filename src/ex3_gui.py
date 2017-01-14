@@ -28,7 +28,7 @@ class ex3_gui(ttk.Frame):
             self.button_list[i+1].configure(state='disable')
 
         self.answer_label['text'] = ""
-        self.fname = askopenfilename(filetypes=(("PCAP files", ("*.pcap", "*.cap")),),initialdir=('./WiFi_Data_test'))
+        self.fname = askopenfilename(filetypes=(("PCAP files", ("*.pcap", "*.cap")),),initialdir=('./WiFi_Data'))
         if self.fname:
             try:
                 self.is_used = True
@@ -59,7 +59,7 @@ class ex3_gui(ttk.Frame):
 
         columnspan = 12
 
-        self.b_browse = ttk.Button(self, compound=tkinter.TOP, text="Browse", command=self.load_file)
+        self.b_browse = ttk.Button(self, compound=tkinter.TOP, text="Open File", command=self.load_file)
         self.button_list.append(self.b_browse)
         self.b_browse.grid(column=1, row=3, columnspan=columnspan, sticky=W + E + N + S)
 

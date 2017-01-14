@@ -143,7 +143,7 @@ class parser:
         plt.clf()
         plt.figure(num=1, figsize=(12, 8))
         plt.axes(aspect=1)
-        plt.suptitle('Frames PI', fontsize=14, fontweight='bold')
+        plt.suptitle('Frames PIE', fontsize=14, fontweight='bold')
         plt.title("Number of packets: " + str(len(self.pcap_file)))
         plt.rcParams.update({'font.size': 10})
         plt.pie(percents, labels=pies, autopct='%.1f%%', startangle=90, colors=colors, pctdistance=0.7,
@@ -246,7 +246,7 @@ class parser:
         plt.axes(aspect=1)
         plt.suptitle('Retransmitted packet', fontsize=14, fontweight='bold')
         plt.rcParams.update({'font.size': 13})
-        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=-30, colors=colors, pctdistance=0.7,
+        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=60, colors=colors, pctdistance=0.7,
                 labeldistance=1.2)
 
         plt.show()
@@ -263,9 +263,7 @@ class parser:
         f = open('Communication Data', 'w')
 
         for pkt in self.pcap_file:
-            f.write("Time: " + str(pkt.time - start_time) + " -> Source: " + str(
-                pkt[Dot11].addr1) + " -> destenation: " + str(pkt[Dot11].addr2) + "\nThe info of this packet:\n" + str(
-                pkt[Dot11]) + "\n--------------------\n")
+            f.write("Time: " + str(pkt.time - start_time) + " -> Source: " + str(pkt[Dot11].addr1) + " -> destenation: " + str(pkt[Dot11].addr2) + "\nThe info of this packet:\n" + str(pkt[Dot11]) + "\n--------------------\n")
 
         f.close()
 
@@ -286,7 +284,7 @@ class parser:
                 count += 1
 
         plt.clf()
-        plt.suptitle('communicat with' + str(mac_address), fontsize=14, fontweight='bold')
+        plt.suptitle('communicat with ' + str(mac_address), fontsize=14, fontweight='bold')
         plt.title("Number of Communication: " + str(count))
         plt.rcParams.update({'font.size': 10})
         G.add_edges_from(edges_list)
@@ -316,7 +314,7 @@ class parser:
             MA.append(mac_adresses[ma])
 
         plt.clf()
-        plt.suptitle('Number of packets by interval and MACaddress', fontsize=14, fontweight='bold')
+        plt.suptitle('Number of packets by interval tine and MAC address', fontsize=14, fontweight='bold')
         plt.bar(range(len(mac_adresses)), sorted(MA), align='center', color=MY_COLORS)
 
         plt.xticks(range(len(mac_adresses)), sorted(mac_adresses.keys()))
@@ -324,7 +322,7 @@ class parser:
         plt.rcParams.update({'font.size': 10})
 
         plt.xlabel('Sender mac address')
-        plt.ylabel('Count')
+        plt.ylabel('Number of packets')
 
         # Set tick colors:
         ax = plt.gca()
