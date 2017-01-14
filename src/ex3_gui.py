@@ -75,10 +75,16 @@ class ex3_gui(ttk.Frame):
                                            command=self.display_frames))
         self.button_list.append(ttk.Button(self, text='channel efficiency',
                                               command=self.display_channel_efficiency))
-        self.button_list.append(ttk.Button(self, text='Display bytes per second',
+        self.button_list.append(ttk.Button(self, text='bytes per second',
                                               command=self.display_bytes_per_second))
-        self.button_list.append(ttk.Button(self, text='Display PER',
+        self.button_list.append(ttk.Button(self, text='Retransmitted packets',
                                               command=self.display_PER))
+        self.button_list.append(ttk.Button(self, text='Communication Data',
+                                           command=self.save_information_as_text))
+        self.button_list.append(ttk.Button(self, text='Graph of specific mac address',
+                                           command=self.display_graph_by_specific_mac))
+        self.button_list.append(ttk.Button(self, text='Graph of specific mac address by time interval',
+                                           command=self.display_by_time_interval))
 
         self.answer_frame = ttk.LabelFrame(self, text='Status',
                                            height=100)
@@ -136,6 +142,50 @@ class ex3_gui(ttk.Frame):
             if (self.parser_object):
                 self.parser_object.destroy_fig()
             root.destroy()
+
+    def save_information_as_text(self):
+        self.parser_object.save_information_as_text()
+
+    def display_graph_by_specific_mac(self):
+
+        top = self.top = Toplevel(self.root)
+
+        Label(top, text="Value").pack()
+
+        self.e = Entry(top)
+        self.e.pack(padx=5)
+
+        b = Button(top, text="OK", command=self.ok)
+        b.pack(pady=5)
+
+    def ok(self):
+
+        self.parser_object.display_graph_by_specific_mac(self.e.get())
+
+    def display_by_time_interval(self):
+
+        top = self.top = Toplevel(self.root)
+        Label(top, text="MAC address").pack()
+        self.e0 = Entry(top)
+        self.e0.pack(padx=5)
+        self.e1a = Entry(top)
+        self.e1a.pack(padx=5)
+        Label(self.e1a, text="Start time").pack()
+        self.e1 = Entry(top)
+        self.e1.pack(padx=5)
+        self.e2a = Entry(top)
+        self.e2a.pack(padx=5)
+        Label(self.e2a, text="End time").pack()
+        self.e2 = Entry(top)
+        self.e2.pack(padx=5)
+
+        b = Button(top, text="OK", command=self.ok2)
+        b.pack(pady=5)
+
+    def ok2(self):
+
+        self.parser_object.display_by_time_interval(self.e0.get(), float(self.e1.get()), float(self.e2.get()))
+
 
 if __name__ == '__main__':
     root = tkinter.Tk()

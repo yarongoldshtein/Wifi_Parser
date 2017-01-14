@@ -215,8 +215,7 @@ class parser:
         time_unit = list(range(max_time + 1))
 
         plt.clf()
-        plt.suptitle('bPS', fontsize=14, fontweight='bold')
-        plt.title('bits per second', fontsize=10)
+        plt.suptitle('bytes per second', fontsize=14, fontweight='bold')
         plt.xlabel('Time (in seconds)')
         plt.ylabel('bytes')
 
@@ -245,8 +244,7 @@ class parser:
         plt.clf()
         plt.figure(num=1, figsize=(8, 6))
         plt.axes(aspect=1)
-        plt.suptitle('PER', fontsize=14, fontweight='bold')
-        plt.title('Pakcet Error Rate', fontsize=10)
+        plt.suptitle('Retransmitted packet', fontsize=14, fontweight='bold')
         plt.rcParams.update({'font.size': 13})
         plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=-30, colors=colors, pctdistance=0.7,
                 labeldistance=1.2)
@@ -258,27 +256,96 @@ class parser:
         if plt:
             plt.close()
 
+    def save_information_as_text(self):
+
+        start_time = self.pcap_file[0].time
+
+        f = open('Communication Data', 'w')
+
+        for pkt in self.pcap_file:
+            f.write("Time: " + str(pkt.time - start_time) + " -> Source: " + str(
+                pkt[Dot11].addr1) + " -> destenation: " + str(pkt[Dot11].addr2) + "\nThe info of this packet:\n" + str(
+                pkt[Dot11]) + "\n--------------------\n")
+
+        f.close()
+
+    def display_graph_by_specific_mac(self, mac_address):
+
+        G = nx.Graph()
+
+        count = 0
+        edges_list = []
+
+        for pkt in self.pcap_file:
+
+            src = pkt[Dot11].addr1
+            dst = pkt[Dot11].addr2
+
+            if mac_address in [src, dst]:
+                edges_list.append((src, dst))
+                count += 1
+
+        plt.clf()
+        plt.suptitle('communicat with' + str(mac_address), fontsize=14, fontweight='bold')
+        plt.title("Number of Communication: " + str(count))
+        plt.rcParams.update({'font.size': 10})
+        G.add_edges_from(edges_list)
+        nx.draw(G, with_labels=True, node_color=MY_COLORS)
+        plt.show()
+
+    def display_by_time_interval(self, mac_address, start_time, end_time):
+
+        mac_adresses = {}  # new dictionary
+
+        begin_time = self.pcap_file[0].time
+
+        for pkt in self.pcap_file:
+
+            time = pkt.time - begin_time
+            if (pkt[Dot11].addr1 == mac_address) and (start_time <= time and time <= end_time):
+                mac_adresses.update({pkt[Dot11].addr2: 0})
+
+        for pkt in self.pcap_file:
+
+            time = pkt.time - begin_time
+            if (pkt[Dot11].addr1 == mac_address) and (start_time <= time and time <= end_time):
+                mac_adresses[pkt[Dot11].addr2] += 1
+
+        MA = []
+        for ma in mac_adresses:
+            MA.append(mac_adresses[ma])
+
+        plt.clf()
+        plt.suptitle('Number of packets by interval and MACaddress', fontsize=14, fontweight='bold')
+        plt.bar(range(len(mac_adresses)), sorted(MA), align='center', color=MY_COLORS)
+
+        plt.xticks(range(len(mac_adresses)), sorted(mac_adresses.keys()))
+
+        plt.rcParams.update({'font.size': 10})
+
+        plt.xlabel('Sender mac address')
+        plt.ylabel('Count')
+
+        # Set tick colors:
+        ax = plt.gca()
+        ax.tick_params(axis='x', colors='blue')
+        ax.tick_params(axis='y', colors='red')
+        ax.set_xticklabels(ax.xaxis.get_majorticklabels(), rotation=45)
+
+        plt.show()
+
 
 # End of class ex3
 
 
-def open_file(file_name='/home/matan/PycharmProjects/second_project/pcg/dasda/file1.cap'):
+def open_file(file_name='/home/yaron/PycharmProjects/matala3/src/WiFi_Data_test/android-Sun-Dec-25-10-40-30-GMT+02-00-2016.cap'):
     return parser(file_name)
 
 
 def main():
     ex3_object = open_file()
 
-    # for testing a specific function
-    # ex3_object.display_by_MAC_addresses()
-    # ex3_object.display_by_access_points()
-    # ex3_object.display_graph()
-    # ex3_object.display_frames()
-    # ex3_object.display_channel_efficiency()
-    # ex3_object.display_by_sender()
-    # ex3_object.display_by_receiver()
-    # ex3_object.display_bytes_per_second()
-    ex3_object.display_PER()
+
 
 if __name__ == '__main__':
     main()
