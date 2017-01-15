@@ -4,12 +4,17 @@ ex3.py
 
 """
 import logging
+
+from scapy.layers.dot11 import Dot11, Dot11Elt
+
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from operator import itemgetter
+import os
+from os.path import basename
 
 
 MY_COLORS = np.array(['c', 'y', 'm', 'gray', 'b', 'r', 'g', 'k','gold'])
@@ -19,6 +24,7 @@ BW_STANDARD_WIFI = 15E7
 class parser:
     def __init__(self, path):
         self.pcap_file = rdpcap(path)
+        self.path = path
 
     def graph_by_receiver(self):
 
@@ -156,16 +162,22 @@ class parser:
         G = nx.Graph()
 
         count = 0
+        edges = set()
         edges_list = []
 
         for pkt in self.pcap_file:
             if hasattr(pkt.payload, 'src') and hasattr(pkt.payload, 'dst'):
                 count += 1
                 edges_list.append((pkt.payload.src, pkt.payload.dst))
+                edges.add(pkt.payload.src)
+                edges.add(pkt.payload.dst)
+
 
         plt.clf()
-        plt.suptitle('Connection Map', fontsize=14, fontweight='bold')
-        plt.title("Number of users: " + str(count))
+        filepath = os.path.splitext(self.path)[0]
+        filename = basename(filepath)
+        plt.suptitle('Connection Map of: '+ str(filename), fontsize=14, fontweight='bold')
+        plt.title("\n Number of Users: " + str(int(len(edges))) + "\n Number of packets: " + str(count))
         plt.rcParams.update({'font.size': 10})
         G.add_edges_from(edges_list)
         nx.draw(G, with_labels=True, node_color=MY_COLORS)
@@ -200,7 +212,7 @@ class parser:
 
         plt.show()
 
-    def display_bytes_per_second(self):
+    def display_bits_per_second(self):
 
         max_time = int(self.pcap_file[len(self.pcap_file) - 1].time) - int(self.pcap_file[0].time)
         bits_list = [0] * (max_time + 1)
@@ -215,9 +227,9 @@ class parser:
         time_unit = list(range(max_time + 1))
 
         plt.clf()
-        plt.suptitle('bytes per second', fontsize=14, fontweight='bold')
+        plt.suptitle('bits per second', fontsize=14, fontweight='bold')
         plt.xlabel('Time (in seconds)')
-        plt.ylabel('bytes')
+        plt.ylabel('bits')
 
         plt.plot(time_unit, bits_list, marker='.', color='blue')
         plt.show()
@@ -272,7 +284,9 @@ class parser:
         G = nx.Graph()
 
         count = 0
+        edges = set()
         edges_list = []
+
 
         for pkt in self.pcap_file:
 
@@ -281,11 +295,13 @@ class parser:
 
             if mac_address in [src, dst]:
                 edges_list.append((src, dst))
+                edges.add(src)
+                edges.add(dst)
                 count += 1
 
         plt.clf()
-        plt.suptitle('communicat with ' + str(mac_address), fontsize=14, fontweight='bold')
-        plt.title("Number of Communication: " + str(count))
+        plt.suptitle('Communicating with ' + str(mac_address), fontsize=14, fontweight='bold')
+        plt.title("\n Number of Communicating Users: " + str(int(len(edges)))+"\n Number of packets: " + str(count))
         plt.rcParams.update({'font.size': 10})
         G.add_edges_from(edges_list)
         nx.draw(G, with_labels=True, node_color=MY_COLORS)

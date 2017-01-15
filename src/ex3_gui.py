@@ -15,6 +15,7 @@ from os.path import basename
 class ex3_gui(ttk.Frame):
     """The adders gui and functions."""
 
+
     def __init__(self, parent, *args, **kwargs):
         ttk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
@@ -27,14 +28,14 @@ class ex3_gui(ttk.Frame):
         for i in range(len(self.button_list)-1):
             self.button_list[i+1].configure(state='disable')
 
-        self.answer_label['text'] = ""
+        self.answer_label['text'] = "Choose and open a File"
         self.fname = askopenfilename(filetypes=(("PCAP files", ("*.pcap", "*.cap")),),initialdir=('./WiFi_Data'))
         if self.fname:
             try:
                 self.is_used = True
                 self.parser_object = ex3.open_file(self.fname)
                 filename = os.path.splitext(self.fname)[0]
-                self.answer_label['text'] = "'"+basename(filename)+"'" + " loaded successfully!"
+                self.answer_label['text'] = "'"+basename(filename)+"'" + " opened successfully!"
                 for i in range(len(self.button_list) - 1):
                     self.button_list[i + 1].configure(state='enable')
 
@@ -71,12 +72,12 @@ class ex3_gui(ttk.Frame):
                                            command=self.graph_by_receiver))
         self.button_list.append(ttk.Button(self, text='Graph of Access Points',
                                            command=self.display_by_AP))
-        self.button_list.append(ttk.Button(self, text='Distribution by Frame',
+        self.button_list.append(ttk.Button(self, text='Distribution of Frames',
                                            command=self.display_frames))
         self.button_list.append(ttk.Button(self, text='channel efficiency',
                                               command=self.display_channel_efficiency))
-        self.button_list.append(ttk.Button(self, text='bytes per second',
-                                              command=self.display_bytes_per_second))
+        self.button_list.append(ttk.Button(self, text='bits per second',
+                                              command=self.display_bits_per_second))
         self.button_list.append(ttk.Button(self, text='Retransmitted packets',
                                               command=self.display_PER))
         self.button_list.append(ttk.Button(self, text='Communication Data',
@@ -130,8 +131,8 @@ class ex3_gui(ttk.Frame):
     def display_channel_efficiency(self):
         self.parser_object.display_channel_efficiency()
 
-    def display_bytes_per_second(self):
-        self.parser_object.display_bytes_per_second()
+    def display_bits_per_second(self):
+        self.parser_object.display_bits_per_second()
 
     def display_PER(self):
         self.parser_object.display_PER()
@@ -170,12 +171,12 @@ class ex3_gui(ttk.Frame):
         self.e0.pack(padx=5)
         self.e1a = Entry(top)
         self.e1a.pack(padx=5)
-        Label(self.e1a, text="Start time").pack()
+        Label(self.e1a, text="Start time in seconds").pack()
         self.e1 = Entry(top)
         self.e1.pack(padx=5)
         self.e2a = Entry(top)
         self.e2a.pack(padx=5)
-        Label(self.e2a, text="End time").pack()
+        Label(self.e2a, text="End time in seconds").pack()
         self.e2 = Entry(top)
         self.e2.pack(padx=5)
 
