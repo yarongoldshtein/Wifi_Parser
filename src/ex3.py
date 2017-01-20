@@ -150,10 +150,9 @@ class parser:
         plt.figure(num=1, figsize=(12, 8))
         plt.axes(aspect=1)
         plt.suptitle('Frames PIE', fontsize=14, fontweight='bold')
-        plt.title("Number of packets: " + str(len(self.pcap_file)))
+        plt.title("Number of types: " + str(len(frame_list)))
         plt.rcParams.update({'font.size': 10})
-        plt.pie(percents, labels=pies, autopct='%.1f%%', startangle=90, colors=colors, pctdistance=0.7,
-                labeldistance=1.2)
+        plt.pie(percents, labels=pies, autopct='%.1f%%', startangle=90, colors=colors, pctdistance=0.7,labeldistance=1.2)
 
         plt.show()
 
@@ -166,18 +165,20 @@ class parser:
         edges_list = []
 
         for pkt in self.pcap_file:
-            if hasattr(pkt.payload, 'src') and hasattr(pkt.payload, 'dst'):
-                count += 1
-                edges_list.append((pkt.payload.src, pkt.payload.dst))
-                edges.add(pkt.payload.src)
-                edges.add(pkt.payload.dst)
+            if pkt.haslayer(Dot11Elt):
+                src = pkt[Dot11].addr1
+                dst = pkt[Dot11].addr2
+
+                edges_list.append((src, dst))
+                edges.add(src)
+                edges.add(dst)
 
 
         plt.clf()
         filepath = os.path.splitext(self.path)[0]
         filename = basename(filepath)
         plt.suptitle('Connection Map of: '+ str(filename), fontsize=14, fontweight='bold')
-        plt.title("\n Number of Users: " + str(int(len(edges))) + "\n Number of packets: " + str(count))
+        plt.title("\n Number of Users: " + str(int(len(edges))))
         plt.rcParams.update({'font.size': 10})
         G.add_edges_from(edges_list)
         nx.draw(G, with_labels=True, node_color=MY_COLORS)
@@ -190,7 +191,7 @@ class parser:
         start_time = self.pcap_file[0].time
         end_time = self.pcap_file[len(self.pcap_file) - 1].time
 
-        duration = end_time - start_time
+        duration = (end_time - start_time)/1000
 
         for i in range(len(self.pcap_file) - 1):
             size += len(self.pcap_file[i])
@@ -207,8 +208,7 @@ class parser:
         plt.suptitle('Channel efficiency', fontsize=14, fontweight='bold')
         plt.title("Bits/s: " + str(float("%.2f" % ((size*8)/duration))),fontsize = 12)
         plt.rcParams.update({'font.size': 17})
-        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=60, colors=colors, pctdistance=0.7,
-                labeldistance=1.2)
+        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=60, colors=colors, pctdistance=0.7, labeldistance=1.2)
 
         plt.show()
 
@@ -246,7 +246,7 @@ class parser:
 
         ans = (retransmission_pkts / number_of_pkts)*100
         ans = float("%.2f" % ans)
-        labels = ['Standard packet', 'Retransmitted packet']
+        labels = ['Standard packets', 'Retransmitted packets']
         sizes = [100.0 - ans,ans]
 
 
@@ -258,8 +258,7 @@ class parser:
         plt.axes(aspect=1)
         plt.suptitle('Retransmitted packet', fontsize=14, fontweight='bold')
         plt.rcParams.update({'font.size': 13})
-        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=60, colors=colors, pctdistance=0.7,
-                labeldistance=1.2)
+        plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=60, colors=colors, pctdistance=0.7, labeldistance=1.2)
 
         plt.show()
 
@@ -275,7 +274,7 @@ class parser:
         f = open('Communication Data', 'w')
 
         for pkt in self.pcap_file:
-            f.write("Time: " + str(pkt.time - start_time) + " -> Source: " + str(pkt[Dot11].addr1) + " -> destenation: " + str(pkt[Dot11].addr2) + "\nThe info of this packet:\n" + str(pkt[Dot11]) + "\n--------------------\n")
+            f.write("Time: " + str(pkt.time - start_time) + " -> Source: " + str(pkt[Dot11].addr1) + " -> destenation: " + str(pkt[Dot11].addr2) + "\nThe Hex in this packet:\n" + str(pkt[Dot11]) + "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
         f.close()
 
@@ -297,11 +296,10 @@ class parser:
                 edges_list.append((src, dst))
                 edges.add(src)
                 edges.add(dst)
-                count += 1
 
         plt.clf()
         plt.suptitle('Communicating with ' + str(mac_address), fontsize=14, fontweight='bold')
-        plt.title("\n Number of Communicating Users: " + str(int(len(edges)))+"\n Number of packets: " + str(count))
+        plt.title("\n Number of Communicating Users: " + str(int(len(edges))))
         plt.rcParams.update({'font.size': 10})
         G.add_edges_from(edges_list)
         nx.draw(G, with_labels=True, node_color=MY_COLORS)
@@ -330,7 +328,7 @@ class parser:
             MA.append(mac_adresses[ma])
 
         plt.clf()
-        plt.suptitle('Number of packets by interval tine and MAC address', fontsize=14, fontweight='bold')
+        plt.suptitle('Number of packets by interval tine and MAC address'+ str(mac_address), fontsize=14, fontweight='bold')
         plt.bar(range(len(mac_adresses)), sorted(MA), align='center', color=MY_COLORS)
 
         plt.xticks(range(len(mac_adresses)), sorted(mac_adresses.keys()))
@@ -348,16 +346,66 @@ class parser:
 
         plt.show()
 
+    def display_graph_by_AP(self):
+
+        G = nx.Graph()
+        edges_set = set()
+
+        for pkt in self.pcap_file:
+            src = pkt[Dot11].addr1
+            dst = pkt[Dot11].addr2
+            ssid = str(pkt[Dot11].addr3)
+
+            edges_set.add((ssid, dst))
+            edges_set.add((dst, ssid))
+            edges_set.add((src, ssid))
+            edges_set.add((ssid, src))
+
+        edges_list = list(edges_set)
+
+        plt.clf()
+        plt.suptitle('Communicating with Access Points', fontsize=14, fontweight='bold')
+        plt.rcParams.update({'font.size': 10})
+        G.add_edges_from(edges_list)
+        nx.draw(G, with_labels=True, node_color=MY_COLORS)
+        plt.show()
+
+    def display_graph_IP(self):
+
+        G = nx.Graph()
+
+        count = 0
+        edges = set()
+        edges_list = []
+
+        for pkt in self.pcap_file:
+            if hasattr(pkt.payload, 'src') and hasattr(pkt.payload, 'dst'):
+                count += 1
+                edges_list.append((pkt.payload.src, pkt.payload.dst))
+                edges.add(pkt.payload.src)
+                edges.add(pkt.payload.dst)
+
+        plt.clf()
+        filepath = os.path.splitext(self.path)[0]
+        filename = basename(filepath)
+        plt.suptitle('Connection Map of: ' + str(filename), fontsize=14, fontweight='bold')
+        plt.title("\n Number of Users: " + str(int(len(edges))) + "\n Number of packets: " + str(count))
+        plt.rcParams.update({'font.size': 10})
+        G.add_edges_from(edges_list)
+        nx.draw(G, with_labels=True, node_color=MY_COLORS)
+        plt.show()
+
 
 # End of class ex3
 
 
-def open_file(file_name='/home/yaron/PycharmProjects/matala3/src/WiFi_Data_test/android-Sun-Dec-25-10-40-30-GMT+02-00-2016.cap'):
+def open_file(file_name='/home/yaron/PycharmProjects/matala3/src/WiFi_Data/android-Sun-Dec-25-10-40-30-GMT+02-00-2016.cap'):
     return parser(file_name)
 
 
 def main():
     ex3_object = open_file()
+    # ex3_object.display_graph_by_SSID()
 
 
 

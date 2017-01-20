@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 ex3_gui.py
 ~~~~~~
@@ -14,7 +15,6 @@ from os.path import basename
 
 class ex3_gui(ttk.Frame):
     """The adders gui and functions."""
-
 
     def __init__(self, parent, *args, **kwargs):
         ttk.Frame.__init__(self, parent, *args, **kwargs)
@@ -66,11 +66,21 @@ class ex3_gui(ttk.Frame):
 
         self.button_list.append(ttk.Button(self, text='Connection Map',
                                           command=self.display_graph))
+        self.button_list.append(ttk.Button(self, text='Connection Map by IP',
+                                           command=self.display_graph_IP))
+        self.button_list.append(ttk.Button(self, text='Communication Data',
+                                           command=self.save_information_as_text))
+        self.button_list.append(ttk.Button(self, text='Graph of specific mac address',
+                                           command=self.display_graph_by_specific_mac))
+        self.button_list.append(ttk.Button(self, text='Graph of specific mac address by time interval',
+                                           command=self.display_by_time_interval))
+        self.button_list.append(ttk.Button(self, text='Graph of Access Points by mac address',
+                                           command=self.display_graph_by_AP))
         self.button_list.append(ttk.Button(self, text='Graph of amount by sender',
                                            command=self.graph_by_sender))
         self.button_list.append(ttk.Button(self, text='Graph of amount by receiver',
                                            command=self.graph_by_receiver))
-        self.button_list.append(ttk.Button(self, text='Graph of Access Points',
+        self.button_list.append(ttk.Button(self, text='Graph of amount by Access Points',
                                            command=self.display_by_AP))
         self.button_list.append(ttk.Button(self, text='Distribution of Frames',
                                            command=self.display_frames))
@@ -80,30 +90,25 @@ class ex3_gui(ttk.Frame):
                                               command=self.display_bits_per_second))
         self.button_list.append(ttk.Button(self, text='Retransmitted packets',
                                               command=self.display_PER))
-        self.button_list.append(ttk.Button(self, text='Communication Data',
-                                           command=self.save_information_as_text))
-        self.button_list.append(ttk.Button(self, text='Graph of specific mac address',
-                                           command=self.display_graph_by_specific_mac))
-        self.button_list.append(ttk.Button(self, text='Graph of specific mac address by time interval',
-                                           command=self.display_by_time_interval))
 
-        self.answer_frame = ttk.LabelFrame(self, text='Status',
-                                           height=100)
+        self.answer_frame = ttk.LabelFrame(self, text='--',height=100)
         self.answer_frame.grid(column=0, row=5+len(self.button_list), columnspan=columnspan, sticky='nesw')
 
-        self.answer_label = ttk.Label(self.answer_frame, text='')
+        self.answer_label = ttk.Label(self.answer_frame, text='Welcome')
         self.answer_label.grid(column=0, row=0)
 
         # Labels that remain constant throughout execution.
-        ttk.Label(self, text='PCAP WIFI Parser').grid(column=0, row=0,
-                                                 columnspan=columnspan)
+        ttk.Label(self, text='PCAP WIFI Parser').grid(column=7, row=0,columnspan=columnspan)
 
-        ttk.Separator(self, orient='horizontal').grid(column=0,
-                                                      row=1, columnspan=columnspan, sticky='ew')
-
+        # ttk.Separator(self, orient='horizontal').grid(column=0,row=1, columnspan=columnspan, sticky='ew')
+        self.button_list[0].grid(column=7, row=4, columnspan=columnspan, sticky=W + N + S)
         for i in range(len(self.button_list)-1):
+            if i%2 == 0:
+                j = i
+            else:
+                j = i-1
             temp = self.button_list[i+1]
-            temp.grid(column=0, row=4+i, columnspan=columnspan, sticky=W + N + S)
+            temp.grid(column=((i%2)*15), row=5+j, columnspan=columnspan, sticky=W + N + S)
             temp.configure(state='disable')
 
         # shortcuts
@@ -115,6 +120,9 @@ class ex3_gui(ttk.Frame):
 
     def display_by_AP(self):
         self.parser_object.display_by_AP()
+
+    def display_graph_by_AP(self):
+        self.parser_object.display_graph_by_AP()
 
     def graph_by_receiver(self):
         self.parser_object.graph_by_receiver()
@@ -151,7 +159,7 @@ class ex3_gui(ttk.Frame):
 
         top = self.top = Toplevel(self.root)
 
-        Label(top, text="Value").pack()
+        Label(top, text="MAC address").pack()
 
         self.e = Entry(top)
         self.e.pack(padx=5)
@@ -187,6 +195,8 @@ class ex3_gui(ttk.Frame):
 
         self.parser_object.display_by_time_interval(self.e0.get(), float(self.e1.get()), float(self.e2.get()))
 
+    def display_graph_IP(self):
+        self.parser_object.display_graph_IP()
 
 if __name__ == '__main__':
     root = tkinter.Tk()
